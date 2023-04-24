@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/detail.css" />
+    <div id="navbar"></div>
+</head>
+
+<body>
+    <div class="item" id="global">
+        <h2 id="titre"></h2>
+        <div id="produit">
+            <img id="image">
+            <div class="details">
+                <p class="description" id="description"></p>
+                <div id="bottom">
+                    <p class="price" id="price"></p>
+                <button id="addbtn">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function logJSONData() {
+            var url = new URL(document.location.href);
+            var id = url.searchParams.get("id");
+            const response = await fetch("http://localhost:3000/produits/" + id);
+            const item = await response.json();
+
+            document.getElementById("titre").textContent = item.name;
+
+            document.getElementById("image").src = item.image;
+
+            document.getElementById("description").textContent = item.description;
+
+            document.getElementById("price").textContent = item.prix + " euros";
+
+        }
+
+        logJSONData();
+
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            });
+    </script>
+    <script src="./js/navbar.js"></script>
+</body>
+
+</html>

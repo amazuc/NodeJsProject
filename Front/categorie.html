@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <d id="navbar"></d>
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/produit.css" />
+</head>
+
+<body>
+    <div id="items"></div>
+    <script>
+
+        async function logJSONData() {
+            var url = new URL(document.location.href);
+            var id = url.searchParams.get("id");
+            const response = await fetch("http://localhost:3000/categorys/" + id + "/produits");
+            const jsonData = await response.json();
+            jsonData.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('item');
+
+                // Création d'un élément h2 pour le titre
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+
+                // Création d'un élément img pour l'image
+                const image = document.createElement('img');
+                image.src = item.image;
+
+                // Création d'un élément p pour la description
+                //const description = document.createElement('p');
+                //description.textContent = item.description;
+
+                // Création d'un élément span pour le prix
+                const price = document.createElement('price');
+                price.setAttribute("class","price");
+                price.textContent = item.prix + " euros";
+
+                // Ajout des éléments au div
+                div.appendChild(title);
+                div.appendChild(image);
+                // div.appendChild(description);
+                div.appendChild(price);
+                div.setAttribute("onClick", "redirect(" + item.id + ")");
+                // Ajout du div au conteneur "items" dans le HTML
+                document.getElementById('items').appendChild(div);
+            });
+
+        }
+
+        function redirect(id) {
+            document.location.href = "./detail.html?id=" + id;
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            logJSONData();
+        });
+
+        fetch('./navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            });
+    </script>
+    <script src="./js/navbar.js"></script>
+</body>
+
+</html>

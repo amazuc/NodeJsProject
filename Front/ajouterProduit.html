@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <div id="navbar"></div>
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 50%;
+            margin: auto;
+            margin-top: 20px;
+        }
+
+
+
+        label {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            background-color: #a49f9f;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <label for="titre">Titre :</label>
+        <input type="text" id="name" name="titre"><br><br>
+
+        <label for="image">Image :</label>
+        <!--<input type="file" id="image" name="image"><br><br>-->
+        <input type="text" id="image" name="image"><br><br>
+
+        <label for="description">Description :</label>
+        <textarea id="description" name="description"></textarea><br><br>
+
+        <label for="prix">Prix :</label>
+        <input type="number" id="prix" name="prix"><br><br>
+
+        <label for="cat">Cat&eacute;gorie :</label>
+        <select id="cat" name="cat">
+        </select><br><br>
+
+        <input type="submit" value="Ajouter" onclick="ajouterProduit(); return false;">
+    </form>
+
+
+    <script>
+        async function getCategorie() {
+            const select = document.getElementById('cat');
+            const response = await fetch("http://localhost:3000/categorys");
+            const jsonData = await response.json();
+            jsonData.forEach(item => {
+                var option = document.createElement('option');
+                option.value = item.id;
+                option.text = item.name; 
+                select.add(option);
+            }
+            );
+        }
+
+        getCategorie();
+
+        async function postData(methode, url = "", data = {}) {
+            const response = await fetch(url, {
+                method: methode,
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true,
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        }
+
+        function ajouterProduit() {
+            var name = document.getElementById("name").value;
+            var description = document.getElementById("description").value;
+            var image = document.getElementById("image").value;
+            var prix = document.getElementById("prix").value;
+            var cat = document.getElementById("cat").value;
+
+            postData("POST", "http://localhost:3000/produits",
+                { name: name, description: description, image: image, prix: prix, isactive: true, cat: cat });
+        }
+
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            });
+    </script>
+<script src="./js/navbar.js"></script>
+</body>
+
+</html>

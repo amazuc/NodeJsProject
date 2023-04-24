@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Page de connexion</title>
+    <link rel="stylesheet" href="./css/login.css" />
+    <style>
+    </style>
+</head>
+
+<body>
+    <div class="login">
+        <div class="form">
+            <form id="register" class="register-form" method="post">
+                <h1>Inscription</h1>
+                <input id="newLastname" type="text" placeholder="Nom" required="required"/>
+                <input id="newFirstname" type="text" placeholder="Prenom" required="required"/>
+                <input id="newPhone" type="text" placeholder="Telephone" required="required"/>
+                <input id="newEmail" type="text" placeholder="Email" required="required"/>
+                <input id="newPassword" type="password" placeholder="password" required="required"/>
+                <button id="signupButton" class="btn btn-primary btn-block btn-large"class="btn btn-primary btn-block btn-large" onclick="createUser(); return false;">Inscription</button>
+                <p id="message2"></p>
+                <p class="message">Already registered? <a href="#" onclick="changeToLogin();">Sign In</a></p>
+            </form>
+            <form id="connexion" class="login-form" method="post">
+                <h1>Connexion</h1>
+                <input type="text" placeholder="username" id="username" name="username" required="required"/>
+                <input type="password" placeholder="password" id="password" name="password" required="required"/>
+                <button class="btn btn-primary btn-block btn-large" onclick="sendConnect(); return false;">Connexion</button>
+                <p id="message"></p>
+                <p class="message">Not registered? <a href="#" onclick="changeToSignUp();">Create an account</a></p>
+            </form>
+        </div>
+    </div>
+    <script>
+        var connexion = document.getElementById("connexion");
+        var register = document.getElementById("register");
+        register.style.display = "none"
+        connexion.style.display = "block"
+
+        async function postData(methode, url = "", data = {}, json = true) {
+            const response = await fetch(url, {
+                method: methode,
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true,
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(data),
+            });
+            if (json) {
+                return response.json();
+            }
+            else { return response; 
+            }
+        }
+
+        function sendConnect() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            postData("POST", "http://localhost:3000/auth/login",
+                { username: username, password: password })
+                .then(data => {
+                    var message = document.getElementById("message");
+                    if (data.access_token) {
+                        message.className = "messageGood"
+                        message.innerHTML = "Connexion réussi !"
+                        localStorage.setItem('tokens', JSON.stringify(data));
+                        setTimeout(() => {
+                            document.location.href = "./listUser.html";
+                        }, 1000);
+                    } else {
+                        message.className = "messageBad"
+                        message.innerHTML = "Connexion failed !"
+                    }
+                });
+        }
+
+        function changeToLogin() {
+            var connexion = document.getElementById("connexion");
+            var register = document.getElementById("register");
+            connexion.style.display = "block"
+            register.style.display = "none"
+        }
+
+        function changeToSignUp() {
+            var connexion = document.getElementById("connexion");
+            var register = document.getElementById("register");
+            register.style.display = "block"
+            connexion.style.display = "none"
+        }
+
+        function createUser() {
+            var nom = document.getElementById("newLastname").value;
+            var prenom = document.getElementById("newFirstname").value;
+            var telephone = document.getElementById("newPhone").value;
+            var email = document.getElementById("newEmail").value;
+            var password = document.getElementById("newPassword").value;
+            var type = 1;
+            postData("POST", "http://localhost:3000/users",
+                { firstname: prenom, lastname: nom, phone: telephone, email: email, password: password, type: type },false)
+                .then(data => {
+                    console.log("ok");
+                    var message = document.getElementById("message2")
+                    if (data.ok) {
+                        var button = document.getElementById("signupButton");
+                        button.disabled = true;
+                        message.className = "messageGood"
+                        message.innerHTML = "Inscription réussi !"
+                        setTimeout(() => {
+                            document.location.href = "./login.html";
+                        }, 1000);
+                    } else {
+                        message.className = "messageBad"
+                        message.innerHTML = "Inscription failed !"
+                    }
+                });
+        }
+
+    </script>
+</body>
+
+</html>

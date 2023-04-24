@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <d id="navbar"></d>
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/produit.css" />
+</head>
+
+<body>
+    <div id="page" class="page" style="overflow-y: scroll; height:100%;">
+        <div id="items"></div>
+    </div>
+    <script>
+
+        async function logJSONData() {
+            var url = new URL(document.location.href);
+            var id = url.searchParams.get("id");
+            const response = await fetch("http://localhost:3000/produits");
+            const jsonData = await response.json();
+            jsonData.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('item');
+
+                const title = document.createElement('h2');
+                title.textContent = item.name;
+
+                const image = document.createElement('img');
+                image.src = item.image;
+
+                const price = document.createElement('price');
+                price.setAttribute("class", "price");
+                price.textContent = item.prix + " euros";
+
+                div.appendChild(title);
+                div.appendChild(image);
+                div.appendChild(price);
+                div.setAttribute("onClick", "redirect(" + item.id + ")");
+
+                document.getElementById('items').appendChild(div);
+            });
+
+        }
+
+        function redirect(id) {
+            document.location.href = "./detail.html?id=" + id;
+        }
+
+        logJSONData();
+        fetch('./navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            });
+    </script>
+    <script src="./js/navbar.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <div id="navbar"></div>
+    <link rel="stylesheet" href="./css/navbar.css" />
+    <link rel="stylesheet" href="./css/user.css" />
+</head>
+
+<body>
+
+    <h1><u>Liste des Utilisateurs</u></h1>
+    <table id="tableau">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Telephone</th>
+                <th>E-mail</th>
+            </tr>
+        </thead>
+    </table>
+    <script>
+        async function postData(url = "", data = {}) {
+            // Default options are marked with *
+            const response = await fetch(url, {
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(data), // body data type must match "Content-Type" header
+            });
+            return response.json(); // parses JSON response into native JavaScript objects
+        }
+
+        async function loadData(access_token) {
+            const response = await fetch("http://localhost:3000/users",
+                {
+                    headers: { 'Authorization': 'Bearer ' + access_token }
+                }
+            );
+            const jsonData = await response.json();
+            if (Array.isArray(jsonData)) {
+                var index = 0;
+                jsonData.forEach(element => {
+                    const row = tableau.insertRow(index + 1);
+                    const typeCell = row.insertCell(0);
+                    const nomCell = row.insertCell(1);
+                    const prenomCell = row.insertCell(2);
+                    const telephoneCell = row.insertCell(3);
+                    const emailCell = row.insertCell(4);
+                    typeCell.innerHTML = element["type"]["name"];
+                    nomCell.innerHTML = element["lastname"];
+                    prenomCell.innerHTML = element["firstname"];
+                    telephoneCell.innerHTML = element["phone"];
+                    emailCell.innerHTML = element["email"];
+                    index++;
+                });
+            } else {
+                var refreshResponse = await refreshToken();
+                if (refreshResponse.access_token) {
+                    loadData(refreshResponse.access_token)
+                }
+            }
+        }
+
+        async function refreshToken() {
+            var data = await postData("http://localhost:3000/auth/refreshtoken", JSON.parse(localStorage.getItem("tokens")))
+            localStorage.setItem('tokens', JSON.stringify(data));
+            return data;
+        }
+
+        if (!localStorage.getItem("tokens")) {
+            location.href = "./login.html";
+        } else {
+            var tokens = JSON.parse(localStorage.getItem("tokens"));
+            loadData(tokens.access_token);
+        }
+
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            });
+    </script>
+    <script src="./js/navbar.js"></script>
+</body>
+
+</html>
